@@ -49,7 +49,12 @@ You will need to change some settings in your BIOS and in Windows.
 
 ![dmg](./assets/dmg.png)
 
-> **Note:** Keep in mind that this only wakes your PC from **sleep** mode. It's impossible to do a cold boot from a full shutdown over USB.
+**For DS5Dongle Users:** If you are using a DualSense with a DS5Dongle, go to [https://ds5.awalol.eu.org/](https://ds5.awalol.eu.org/) and enable the wake feature in the settings.
+
+![ds5dongle](./assets/ds5brige.png)
+
+
+**Note:** Keep in mind that this only wakes your PC from **sleep** mode. It's impossible to do a cold boot from a full shutdown over USB.
 
 You should also check the Power Management tab for your Wi-Fi adapter. Mine was waking the PC randomly due to network traffic until I turned that feature off!
 
