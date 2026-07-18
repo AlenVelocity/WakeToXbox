@@ -177,4 +177,4 @@ The background script barely uses any resources since it's event-driven and does
 
 Turn on the Full Screen Experience and auto boot, set Windows to skip the sign-in screen, enable USB wake in your BIOS (make sure your dongle firmware supports it!), and run a simple AutoHotkey script in the background. The script checks the wake source and activates the Xbox interface seamlessly.
 
-If you have any questions, feel free to reach out to me [from here](https://alen.is)
+If you have any questions, feel free to reach out to me, contant info [here](https://alen.is)
