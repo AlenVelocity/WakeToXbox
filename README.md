@@ -3,7 +3,7 @@
 Seemless PC -> Xbox experience with controller wake
 
 <!-- Repo badges placeholder: uncomment and update when published
-[![License](https://img.shields.io/github/license/YOUR_USER/WakeToXbox)](LICENSE)
+[![License](https://img.shields.io/github/license/AlenvelocityakeToXbox)](LICENSE)
 [![AutoHotkey](https://img.shields.io/badge/AutoHotkey-v2.0-green)](https://www.autohotkey.com/)
 -->
 
