@@ -4,7 +4,8 @@
 
 Seamless PC -> Xbox experience with controller wake
 
-[![Release](https://img.shields.io/github/v/release/AlenVelocity/WakeToXbox)](https://github.com/AlenVelocity/WakeToXbox/releases)
+<img width="542" height="497" alt="image" src="https://github.com/user-attachments/assets/1438ac6e-c1b3-45e7-bfbe-2729005c1f97" />
+
 
 Press a button on your controller and your sleeping PC wakes straight into the Xbox Full Screen Experience
 
