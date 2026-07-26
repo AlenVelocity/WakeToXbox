@@ -65,6 +65,12 @@ That's it. Next time the controller wakes the PC, Xbox mode launches on its own.
 
 Extras: a **Test now** button runs the whole sequence without sleeping the PC, and the tray menu lets you toggle the automation or launch Xbox mode manually. The app is fully event-driven — it uses no resources until Windows reports a wake.
 
+If something isn't triggering, check `%LocalAppData%\WakeToXbox.log` — it records every wake signal, the wake source Windows reported, and why it matched or didn't.
+
+### Modern Standby (S0) laptops
+
+Most desktops sleep with **S3**, where Windows logs exactly which USB device woke the PC — that's what the wake-source picker above shows. Laptops (and some desktops) that use **Modern Standby** instead never log that; Windows only records a generic exit reason, not the specific device. WakeToXbox falls back to those reason codes automatically, but on Modern Standby it can't always tell your controller apart from other USB devices — an entry like "Modern Standby wake: PoSetSystemState" can mean *any* non-keyboard/mouse USB device caused the wake, not just the controller. If Xbox mode launches on wakes it shouldn't, this is why. Run `powercfg /a` to see which sleep states your PC actually supports.
+
 ## For developers
 
 Everything is plain C# (WinForms, .NET Framework 4.8) compiled with the toolchain that ships with Windows.
@@ -83,13 +89,13 @@ Source layout (`WakeToXboxApp/`):
 |---|---|
 | `Program.cs` | Entry point, single-instance guard |
 | `TrayContext.cs` | Tray icon, wake-event handling, Win+F11 dispatch |
-| `WakeEvents.cs` | Reads Power-Troubleshooter wake events from the System log |
+| `WakeEvents.cs` | Reads wake events from the System log (Power-Troubleshooter on S3, Kernel-Power on Modern Standby) |
 | `SettingsForm.cs` | Settings window with the wake-source picker |
 | `OverlayForm.cs` | Fullscreen black overlay shown during the transition |
 | `Config.cs` | Registry-backed settings and autostart |
 | `build.ps1` | Icon generation + compilation |
 
-How it works: a hidden window receives `WM_POWERBROADCAST` when the PC resumes, the app reads the newest Power-Troubleshooter event to see *what* caused the wake, and if the wake source matches your controller it sends Win+F11 — with a black overlay hiding the desktop during the transition.
+How it works: a hidden window listens for both `WM_POWERBROADCAST` resume messages and display-on power notifications (the latter also fires reliably on Modern Standby). On a wake signal, the app reads the newest matching System log event to see *what* caused it, waits out any lock screen, and if the source matches your controller it sends Win+F11 — with a black overlay hiding the desktop during the transition. A dedup check keeps a single physical wake from re-triggering the sequence when both signals fire for it.
 
 ## The old way (scripts)
 
