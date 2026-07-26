@@ -91,11 +91,8 @@ namespace WakeToXbox
             _settings.Activate();
         }
 
-        // Called for both wake signals: the classic resume broadcast (S3 and some
-        // Modern Standby stacks) and the display-on power notification (the reliable
-        // signal on Modern Standby, where the resume broadcast may never arrive).
-        // Both can fire for the same wake; the busy flag and _lastHandledWakeUtc
-        // keep the sequence from running twice.
+        // Both wake signals (resume broadcast, display-on) can fire for the same
+        // wake; the busy flag and _lastHandledWakeUtc keep it from running twice.
         internal void OnWakeSignal(string trigger)
         {
             Log("wake signal: " + trigger + (Config.Enabled ? "" : " (automation disabled, ignoring)"));
@@ -103,12 +100,10 @@ namespace WakeToXbox
                 RunWakeSequence(false);
         }
 
-        // The full wake flow: confirm the wake came from the controller, overlay up,
-        // wait out the lock screen and for the shell, send Win+F11, overlay down.
-        // The overlay only appears after the wake source matches, because the
-        // display-on trigger also fires for ordinary screen-off/on cycles where
-        // nothing should visibly happen. skipEventCheck is used by the "Test"
-        // button to run the sequence without a real wake event.
+        // The full wake flow: confirm the wake source, overlay up, wait out the
+        // lock screen and the shell, send Win+F11. The overlay waits for the match
+        // because the display-on trigger also fires for ordinary screen-on.
+        // skipEventCheck is used by the "Test" button.
         internal async void RunWakeSequence(bool skipEventCheck)
         {
             if (Interlocked.CompareExchange(ref _busy, 1, 0) != 0)
@@ -183,11 +178,9 @@ namespace WakeToXbox
             return null;
         }
 
-        // On wake Windows shows the lock-screen curtain on the secure Winlogon
-        // desktop (even when sign-in isn't required), and keystrokes injected from
-        // this session can't reach it. LogonUI.exe runs exactly while that screen is
-        // up, so wait for it to exit — the user dismissing the curtain (or signing
-        // in) — before sending Win+F11. Returns false if it never went away.
+        // Injected keystrokes can't reach the lock-screen curtain on the secure
+        // desktop, so wait for LogonUI.exe (which runs exactly while the curtain
+        // is up) to exit before sending Win+F11.
         static async Task<bool> WaitForLockScreenGone()
         {
             var deadline = Environment.TickCount + 120000;
@@ -299,9 +292,8 @@ namespace WakeToXbox
             base.ExitThreadCore();
         }
 
-        // Hidden top-level window that receives WM_POWERBROADCAST. Listens for the
-        // classic resume broadcast and also registers for console display state
-        // changes, which is the wake signal that actually fires on Modern Standby.
+        // Hidden top-level window that receives WM_POWERBROADCAST; also registers
+        // for display-state changes, the wake signal that fires on Modern Standby.
         sealed class MessageWindow : Form
         {
             const int WM_POWERBROADCAST = 0x218;
@@ -350,7 +342,6 @@ namespace WakeToXbox
                     if (code == PBT_APMRESUMEAUTOMATIC || code == PBT_APMRESUMESUSPEND)
                     {
                         Log("power broadcast: resume (0x" + code.ToString("X") + ")");
-                        // Both resume codes can arrive for one wake; OnWakeSignal dedupes.
                         _ctx.OnWakeSignal("resume broadcast");
                     }
                     else if (code == PBT_APMSUSPEND)

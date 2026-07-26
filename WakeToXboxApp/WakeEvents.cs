@@ -11,19 +11,9 @@ namespace WakeToXbox
         public string SourceText { get; set; }
     }
 
-    // Reads wake events from the System log. Two providers cover the two sleep
-    // architectures:
-    //  - Classic S3: Power-Troubleshooter event 1, whose WakeSourceText names the
-    //    device that woke the PC.
-    //  - Modern Standby (S0 Low Power Idle): Power-Troubleshooter never logs, so we
-    //    read Kernel-Power event 507 ("exiting Modern Standby") instead. It only
-    //    carries a numeric exit reason — USB wake devices such as controllers land
-    //    in the generic software-resume bucket (PoSetSystemState) rather than being
-    //    attributed as HID input, but that still separates them from mouse/keyboard
-    //    wakes, which is what matters.
-    // Both kinds are merged into one list; SourceText is what the settings picker
-    // shows and what Config.WakeSource is matched against, so no other code cares
-    // which provider an event came from.
+    // Reads wake events from the System log: Power-Troubleshooter event 1 on
+    // classic S3 (WakeSourceText names the waking device), plus Kernel-Power
+    // event 507 exit reasons on Modern Standby, where that provider never logs.
     static class WakeEvents
     {
         const string TroubleshooterXPath =
@@ -31,11 +21,9 @@ namespace WakeToXbox
         const string KernelPowerXPath =
             "*[System[Provider[@Name='Microsoft-Windows-Kernel-Power'] and EventID=507]]";
 
-        // Known STANDBY_EXIT_REASON codes, confirmed empirically; anything else is
-        // shown as "reason code N" and can still be picked and matched as-is.
         static readonly Dictionary<int, string> StandbyExitReasons = new Dictionary<int, string>
         {
-            { 7,  "PoSetSystemState" },
+            { 7,  "PoSetSystemState" },  // USB wake devices (controllers) land here
             { 8,  "SetThreadExecutionState" },
             { 31, "Input Keyboard" },
             { 32, "Input Mouse" },
